@@ -1,10 +1,9 @@
 import pygame
 
-from login import login
-import pytmx
-from level import Level
-from settings import *
 from Player import Hero
+from level import Level
+from login import login
+from settings import *
 
 # Инициализируем игру
 pygame.init()
@@ -12,34 +11,34 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 running = True
 clock = pygame.time.Clock()
 
-
 login()
-pos_x = 2
-pos_y = 1
+pos_x = 200
+pos_y = 600
 level = Level("безымянный.tmx", [23], 117)
-hero = Hero("data/box.png", pos_x, pos_y, "data/безымянный.tmx")
+hero = Hero(screen, "data/box.png", pos_x, pos_y, "data/безымянный.tmx")
+
+is_jump = 0
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                hero.move("w")
-            if event.key == pygame.K_s:
-                hero.move("s")
             if event.key == pygame.K_a:
-                hero.move("a")
-            if event.key == pygame.K_d:
-                hero.move("d")
-
+                target_direction = "a"
+                is_jump = LEN_JUMP
+            elif event.key == pygame.K_d:
+                target_direction = "d"
+                is_jump = LEN_JUMP
+    if is_jump > 0:
+        hero.move(target_direction, is_jump)
+        is_jump -= 1
 
     screen.fill(pygame.Color("black"))
     level.render(screen)
-    # Отрисовываем игрока
-    hero_rect = hero.rect
-    screen.blit(hero.image, hero_rect)
+    screen.blit(hero.image, hero.rect)
 
     clock.tick(FPS)
     pygame.display.flip()
+
 pygame.quit()
