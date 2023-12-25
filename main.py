@@ -1,7 +1,11 @@
+import os
+
 import pygame
+import pytmx
 
 from Player import Hero
-from level import Level
+from Tile import Tile
+from functoins import load_map
 from login import login
 from settings import *
 
@@ -11,14 +15,30 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 running = True
 clock = pygame.time.Clock()
 
+all_sprites = pygame.sprite.Group()
+tiles_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+
+full_tmx_path = os.path.join("data", NAME_MAP)
+full_tileset_path = os.path.join("data", "Terrain (16x16).tsx")
+map = pytmx.load_pygame(full_tmx_path, tileset=full_tileset_path)
+map_array = load_map(full_tmx_path)
+height = map.height
+width = map.width
+
+
+for y in range(height):
+    for x in range(width):
+        # print(x, y)
+        if x == 10 and y == 49:
+            new_player = Hero(screen, HERO_IMAGE, x, y, player_group)
+        elif map_array[y][x] == 3 or map_array[y][x] == 2 or map_array[y][x] == 1 or map_array[y][x] == 4:
+            Tile(map, x, y, tiles_group)
+
 login()
-pos_x = 200
-pos_y = 600
-level = Level("безымянный.tmx", [23], 117)
-hero = Hero(screen, "data/box.png", pos_x, pos_y, "data/безымянный.tmx")
 
 is_jump = 0
-
+print(new_player)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -31,12 +51,14 @@ while running:
                 target_direction = "d"
                 is_jump = LEN_JUMP
     if is_jump > 0:
-        hero.move(target_direction, is_jump)
+        new_player.move(target_direction, is_jump)
         is_jump -= 1
 
+
     screen.fill(pygame.Color("black"))
-    level.render(screen)
-    screen.blit(hero.image, hero.rect)
+    tiles_group.draw(screen)
+    player_group.draw(screen)
+
 
     clock.tick(FPS)
     pygame.display.flip()
