@@ -3,7 +3,7 @@ FPS = 40
 max_x = 11
 max_y = 11
 SIZE_TEXT = 30
-DIRECTIONS = (40, 20)
+DIRECTIONS = (5, 7)
 A_XY = (0, -5)
 LEN_JUMP = 10
 tile_width = tile_height = 20
