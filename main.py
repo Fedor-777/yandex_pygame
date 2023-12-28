@@ -35,7 +35,8 @@ for y in range(height):
         elif map_array[y][x] == 3 or map_array[y][x] == 2 or map_array[y][x] == 1 or map_array[y][x] == 4:
             Tile(map, x, y, tiles_group)
 
-login()
+# "экран входа"
+player_name = login()
 
 is_jump = 0
 print(new_player)
