@@ -2,9 +2,8 @@ import os
 import sys
 
 import pygame
-
-from Player import Hero
 import pytmx
+
 from Tile import Tile
 from settings import max_y, max_x
 
@@ -45,21 +44,22 @@ def load_level(filename):
 
 
 def load_map(tmx_file):
-        tmx_data = pytmx.load_pygame(tmx_file)
+    tmx_data = pytmx.load_pygame(tmx_file)
 
-        map_width = tmx_data.width
-        map_height = tmx_data.height
+    map_width = tmx_data.width
+    map_height = tmx_data.height
 
-        # Создаем двумерную таблицу для хранения данных карты
-        map_array = [[0 for _ in range(map_width)] for _ in range(map_height)]
+    # Создаем двумерную таблицу для хранения данных карты
+    map_array = [[0 for _ in range(map_width)] for _ in range(map_height)]
 
-        # Заполняем двумерную таблицу данными из TMX-файла
-        for layer in tmx_data.layers:
-            if layer.name == 'Слой тайлов 1':
-                for x, y, gid in layer:
-                    map_array[y][x] = gid
-        print(map_array)
-        return map_array
+    # Заполняем двумерную таблицу данными из TMX-файла
+    for layer in tmx_data.layers:
+        if layer.name == 'Слой тайлов 1':
+            for x, y, gid in layer:
+                map_array[y][x] = gid
+    print(map_array)
+    return map_array
+
 
 def generate_level(level, tile_group, player_group, tile_images, player_image):
     new_player, x, y = None, None, None

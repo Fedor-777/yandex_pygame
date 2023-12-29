@@ -1,12 +1,13 @@
 import os
-import pygame
+
 from pytmx import pytmx
-from settings import *
+
 from Player import Hero
 from Tile import Tile
-
+from settings import *
 
 WINDOW_SIZE = WINDOW_WIGHT, WINDOW_HEIGHT = 400, 1000
+
 
 class Level:
     def __init__(self, filename, free_tiles, finish, tiles_group, player_group, my_map, screen):
@@ -23,8 +24,6 @@ class Level:
         self.tile_size = self.map.tilewidth
         self.free_tiles = free_tiles
         self.finish = finish
-
-
 
     def render(self):
         print(self.height, self.width)

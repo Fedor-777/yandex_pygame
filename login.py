@@ -18,7 +18,7 @@ def login():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "изображение.png"))
+    background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/box.png"))
 
     while run:
         for event in pygame.event.get():
