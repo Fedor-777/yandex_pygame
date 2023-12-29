@@ -59,7 +59,7 @@ while running:
 
     tiles_group.draw(screen)
     player_group.draw(screen)
-    # player_group.update()  # Перемещаем эту строку вниз
+    # player_group.update()
 
     clock.tick(FPS)
     pygame.display.flip()

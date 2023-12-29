@@ -17,12 +17,31 @@ class Hero(Sprite):
         t = LEN_JUMP - is_jump
         dx, dy = DIRECTIONS
         if arrow == "d":
-            self.pos[0] += dx
-            self.pos[1] -= dy
+            new_x = self.pos[0] + dx
+            new_y = self.pos[1] - dy
+            if 0 <= new_x <= WINDOW_WIGHT // tile_width and 0 <= new_y <= WINDOW_HEIGHT // tile_width:
+                self.pos[0] += dx
+                self.pos[1] -= dy
+                self.pos[0] -= A_XY[0] * t
+                self.pos[1] -= A_XY[1] * t
+                print(self.pos[0], self.pos[1])
+
         if arrow == "a":
-            self.pos[0] -= dx
-            self.pos[1] -= dy
+            new_x = self.pos[0] - dx
+            new_y = self.pos[1] - dy
+            if 0 < new_x < WINDOW_WIGHT // tile_width and 0 < new_y < WINDOW_HEIGHT // tile_width:
+                self.pos[0] -= dx
+                self.pos[1] -= dy
+                self.pos[0] -= A_XY[0] * t
+                self.pos[1] -= A_XY[1] * t
+                if self.pos[1] > WINDOW_HEIGHT // tile_width:
+                    self.pos[1] = WINDOW_HEIGHT // tile_width
+                if self.pos[1] < 0:
+                    self.pos[1] = 0
+                if self.pos[0] < 0:
+                    self.pos[0] = 0
+                if self.pos[0] > WINDOW_WIGHT // tile_width:
+                    self.pos[0] = WINDOW_WIGHT // tile_width
+                print(self.pos[0], self.pos[1])
 
         self.rect = self.image.get_rect().move(self.pos[0] * tile_width, self.pos[1] * tile_height)
-        self.pos[0] -= A_XY[0] * t
-        self.pos[1] -= A_XY[1] * t
