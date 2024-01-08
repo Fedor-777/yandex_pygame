@@ -1,4 +1,4 @@
-WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 400, 600
+WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 600, 1200
 FPS = 40
 max_x = 11
 max_y = 11
@@ -8,6 +8,6 @@ A_XY = (0, -3)
 LEN_JUMP = 20
 tile_width = tile_height = 20
 HERO_IMAGE = "data/box.png"
-NAME_MAP = "безымянный.tmx"
+NAME_MAP = "уровень1.tmx"
 WALL_VALUE = 4
 ACCESSIBLE_VALUE = 74

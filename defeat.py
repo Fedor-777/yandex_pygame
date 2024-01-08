@@ -1,39 +1,32 @@
 import pygame
+import pygame_gui
 
 
-class Defeat:
-    def __init__(self, screen_width, screen_height):
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-        self.font = pygame.font.Font(None, 25)
+def defeat(screen, clock):
+    manager = pygame_gui.UIManager((800, 600))
+    time_delta = clock.tick(60) / 1000.0
+    clock = pygame.time.Clock()
+    is_running = True
+    screen.fill((255, 0, 0))
 
-        self.button_x = screen_width // 2 - 100
-        self.button_y = screen_height // 2 + 50
-        self.button_width = 200
-        self.button_height = 50
+    hello_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 575), (100, 50)),
+                                                text='Попробовать снова',
+                                                manager=manager)
 
-    def display(self, screen):
-        defeat_bg_color = (255, 0, 0)
-        screen.fill(defeat_bg_color)
+    while is_running:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                is_running = False
 
-        text = self.font.render("Вы проиграли. Попробуйте еще раз!", True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
-        screen.blit(text, text_rect)
-
-        # кнопка
-        button_rect = pygame.Rect(self.button_x, self.button_y, self.button_width, self.button_height)
-        pygame.draw.rect(screen, (0, 0, 255), button_rect)
-        button_text = self.font.render("Заново", True, (255, 255, 255))
-        button_text_rect = button_text.get_rect(center=button_rect.center)
-        screen.blit(button_text, button_text_rect)
-
-        pygame.display.flip()
-
-    def check_button_click(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                mouse_x, mouse_y = event.pos
-                if self.button_x <= mouse_x <= self.button_x + self.button_width \
-                        and self.button_y <= mouse_y <= self.button_y + self.button_height:
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == hello_button:
                     return True
-        return False
+
+            manager.process_events(event)
+
+        manager.update(time_delta)
+        manager.draw_ui(screen)
+
+        pygame.display.update()
+    return False

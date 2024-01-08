@@ -18,7 +18,7 @@ def login():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/box.png"))
+    # background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/box.png"))
 
     while run:
         for event in pygame.event.get():
@@ -48,8 +48,8 @@ def login():
                     text += event.unicode
 
         # ______Отрисовка и создание текстов
-        # window.fill((0, 0, 0))
-        window.blit(background_image, (0, 0))
+        window.fill((0, 0, 0))
+        # window.blit(background_image, (0, 0))
         text_surf = font.render("Введите свой ник и нажмите таб:", True, (255, 255, 255))
         window.blit(text_surf, (40, 300))
         text_surf_input = font.render(text, True, (255, 0, 0))
@@ -58,6 +58,7 @@ def login():
         clock.tick(60)
 
     conn.close()
+    # pygame.quit()
     return name
 
 
@@ -80,3 +81,4 @@ def get_max_id():
         return max_id
     else:
         return 0
+
