@@ -1,46 +1,96 @@
-import xml.etree.ElementTree as ET
-
 import pygame
 from pygame.sprite import Sprite
 
-from settings import tile_width, tile_height
-
+from settings import *
+from functoins import load_image
 
 class Hero(Sprite):
-    def __init__(self, player_image_path, pos_x, pos_y, map_file, *group):
+    def __init__(self, screen, *group):
         super().__init__(*group)
-        self.image = pygame.image.load(player_image_path)
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-        self.pos = [pos_x, pos_y]
-        self.map_data = self.load_map(map_file)
+        self.screen = screen
+        self.frames = []
+        sheet = load_image("тыква жизнь.png")
+        self.cut_sheet(sheet, 5, 1)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.image.get_rect()
+        self.rect.move_ip(300, 1180)
 
-    def load_map(self, map_file):
-        tree = ET.parse(map_file)
-        root = tree.getroot()
-        map_data = []
-        for layer in root.findall('layer'):
-            data = layer.find('data').text.strip().split(',')
-            map_data.append([int(tile.strip()) for tile in data])
-        return map_data
+    def move(self, arrow, is_jump, wall_group):
+        t = LEN_JUMP - is_jump
+        dx, dy = DIRECTIONS
+        temp_sprite = Hero(self.screen)
+        temp_sprite.rect = self.rect.copy()
 
-    def move(self, napr):
-        new_x = self.pos[0]
-        new_y = self.pos[1]
-        if napr == "w":
-            new_y -= 1
-        elif napr == "a":
-            new_x -= 1
-        elif napr == "s":
-            new_y += 1
-        elif napr == "d":
-            new_x += 1
+        if arrow == "d":
+            point = 1
+        if arrow == "a":
+            point = -1
 
-        # if 0 <= new_x <= len()
-        self.pos = [new_x, new_y]
-        self.rect = self.image.get_rect().move(tile_width * new_x, tile_height * new_y)
+        temp_sprite.rect.move_ip(dx * point - A_XY[0] * t, -dy - A_XY[1] * t)
+        wall_collisions = pygame.sprite.spritecollide(temp_sprite, wall_group, False)
 
-    def is_move_valid(self, x, y):
-        if x < 0 or y < 0 or x >= len(self.map_data[0]) or y >= len(self.map_data):
-            return False
-        return self.map_data[y][x] == 23
+        if not wall_collisions:
+            self.rect.move_ip(dx * point - A_XY[0] * t, -dy - A_XY[1] * t)
+            print(self.rect.x, self.rect.y)
+            return is_jump
+        else:
+            # print([self.rect.x, self.rect.y], [wall_collisions[0].rect.x, wall_collisions[0].rect.y])
+            if self.rect.x < wall_collisions[0].rect.x:
+                self.rect.move_ip(wall_collisions[0].rect.x - self.rect.x - tile_width, 0)
+            elif self.rect.x >= wall_collisions[0].rect.x:
+                self.rect.move_ip(wall_collisions[0].rect.x - self.rect.x + tile_width, 0)
+            return 0
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
+
+    def update(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+
+
+
+
+
+"""pygame.init()
+clock = pygame.time.Clock()
+# Определяем размеры экрана
+screen_width = 300
+screen_height = 300
+
+# Создаем окно
+screen = pygame.display.set_mode((screen_width, screen_height))
+
+sheet = load_image("тыква смерть.png")
+
+# Создаем экземпляр класса AnimatedSprite
+animated_sprite = AnimatedSprite(sheet, 6, 1, 100, 100)
+
+# Создаем группу спрайтов
+all_sprites = pygame.sprite.Group()
+all_sprites.add(animated_sprite)
+
+# Главный цикл игры
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Обновляем спрайты
+    all_sprites.update()
+
+    # Отрисовываем спрайты на экране
+    screen.fill((0, 0, 0))  # Заливаем экран черным цветом
+    all_sprites.draw(screen)
+    clock.tick(7)
+    pygame.display.flip()
+
+# Завершаем работу pygame и выходим из программы
+pygame.quit()
+sys.exit()"""

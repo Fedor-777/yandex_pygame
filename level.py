@@ -1,11 +1,20 @@
 import os
-import pygame
-import pytmx
+
+from pytmx import pytmx
+
+from Player import Hero
+from Tile import Tile
+from settings import *
 
 WINDOW_SIZE = WINDOW_WIGHT, WINDOW_HEIGHT = 400, 1000
 
+
 class Level:
-    def __init__(self, filename, free_tiles, finish):
+    def __init__(self, filename, free_tiles, finish, tiles_group, player_group, my_map, screen):
+        self.screen = screen
+        self.my_map = my_map
+        self.player_group = player_group
+        self.tiles_group = tiles_group
         tileset_filename = "Terrain (16x16).tsx"
         full_tmx_path = os.path.join("data", filename)
         full_tileset_path = os.path.join("data", tileset_filename)
@@ -16,30 +25,12 @@ class Level:
         self.free_tiles = free_tiles
         self.finish = finish
 
-    def render(self, screen):
+    def render(self):
+        print(self.height, self.width)
         for y in range(self.height):
             for x in range(self.width):
-                image = self.map.get_tile_image(x, y, 0)
-                screen.blit(image, (x * self.tile_size, y * self.tile_size))
-
-    def get_tile_id(self, pos):
-        return self.map.tiledgidmap[self.map.get_tile_gid(*pos, 0)]
-
-# pygame.init()
-# screen = pygame.display.set_mode(WINDOW_SIZE)
-# clock = pygame.time.Clock()
-#
-# level = Level("безымянный.tmx", [23], 117)
-#
-# running = True
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#
-#     screen.fill((0, 0, 0))
-#     level.render(screen)
-#     pygame.display.flip()
-#     clock.tick(60)
-#
-# pygame.quit()
+                if x == 11 and y == 50:
+                    new_player = Hero(self.screen, HERO_IMAGE, self.my_map, self.player_group)
+                elif self.my_map[y][x] == 84:
+                    Tile(self.my_map, x, y, self.tiles_group)
+        return new_player
