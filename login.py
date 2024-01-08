@@ -1,4 +1,3 @@
-import os
 import sqlite3
 
 import pygame
@@ -25,11 +24,9 @@ def login():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.KEYDOWN and input_active:
-                if event.key == pygame.K_RETURN:
-                    input_active = False
-                elif event.key == pygame.K_BACKSPACE:
+                if event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
-                elif event.key == pygame.K_TAB:
+                elif event.key == pygame.K_RETURN:
                     name = text
                     run = False
                     # _________создание/добавление ника в бд
@@ -81,4 +78,3 @@ def get_max_id():
         return max_id
     else:
         return 0
-

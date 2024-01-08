@@ -1,6 +1,7 @@
-import pygame
 import os
 import sys
+
+import pygame
 import pytmx
 
 
@@ -41,5 +42,3 @@ def load_image(name, colorkey=None, size=None):
     if size is not None:
         image = pygame.transform.scale(image, size)
     return image
-
-

@@ -1,12 +1,9 @@
-import os
-
-import pygame
 from login import login
-from main_screen import main_screen
+from screens import *
 
 
 player_name = login()
 
-main_screen()
+main_screen("уровень1.tmx")
 
 pygame.quit()

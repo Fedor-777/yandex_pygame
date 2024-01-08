@@ -4,6 +4,7 @@ from pygame.sprite import Sprite
 from settings import *
 from functoins import load_image
 
+
 class Hero(Sprite):
     def __init__(self, screen, *group):
         super().__init__(*group)
@@ -35,7 +36,6 @@ class Hero(Sprite):
             print(self.rect.x, self.rect.y)
             return is_jump
         else:
-            # print([self.rect.x, self.rect.y], [wall_collisions[0].rect.x, wall_collisions[0].rect.y])
             if self.rect.x < wall_collisions[0].rect.x:
                 self.rect.move_ip(wall_collisions[0].rect.x - self.rect.x - tile_width, 0)
             elif self.rect.x >= wall_collisions[0].rect.x:
@@ -52,45 +52,3 @@ class Hero(Sprite):
     def update(self):
         self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
-
-
-
-
-
-"""pygame.init()
-clock = pygame.time.Clock()
-# Определяем размеры экрана
-screen_width = 300
-screen_height = 300
-
-# Создаем окно
-screen = pygame.display.set_mode((screen_width, screen_height))
-
-sheet = load_image("тыква смерть.png")
-
-# Создаем экземпляр класса AnimatedSprite
-animated_sprite = AnimatedSprite(sheet, 6, 1, 100, 100)
-
-# Создаем группу спрайтов
-all_sprites = pygame.sprite.Group()
-all_sprites.add(animated_sprite)
-
-# Главный цикл игры
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # Обновляем спрайты
-    all_sprites.update()
-
-    # Отрисовываем спрайты на экране
-    screen.fill((0, 0, 0))  # Заливаем экран черным цветом
-    all_sprites.draw(screen)
-    clock.tick(7)
-    pygame.display.flip()
-
-# Завершаем работу pygame и выходим из программы
-pygame.quit()
-sys.exit()"""
