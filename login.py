@@ -39,7 +39,7 @@ def login():
                         print(f"Ник '{name}' уже существует в таблице.")
                     else:
                         print(f"Ник '{name}' добавлен в таблицу.")
-                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?)", (id, name, 0, 1))
+                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, name, 0, 0, 0, 0, 0, 0, 0))
                         conn.commit()
                 else:
                     text += event.unicode
@@ -47,7 +47,7 @@ def login():
         # ______Отрисовка и создание текстов
         window.fill((0, 0, 0))
         # window.blit(background_image, (0, 0))
-        text_surf = font.render("Введите свой ник и нажмите таб:", True, (255, 255, 255))
+        text_surf = font.render("Введите свой ник и нажмите enter:", True, (255, 255, 255))
         window.blit(text_surf, (40, 300))
         text_surf_input = font.render(text, True, (255, 0, 0))
         window.blit(text_surf_input, text_surf_input.get_rect(center=window.get_rect().center))
@@ -63,7 +63,7 @@ def create_database_books():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS stats
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, nick_player TEXT, score INTEGER, lvl INTEGER)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, nick_player TEXT, score INTEGER, lvl1 INTEGER, lvl2 INTEGER, lvl3 INTEGER, lvl4 INTEGER, lvl5 INTEGER, lvl6 INTEGER)''')
     conn.commit()
     conn.close()
 

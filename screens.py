@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import time
 
 import pygame
@@ -11,7 +12,7 @@ from functoins import load_map
 from settings import *
 
 
-def main_screen(name_map):
+def main_screen(player_name, name_map):
     pygame.init()
     start_time = time.time()
     screen = pygame.display.set_mode(WINDOW_SIZE)
@@ -35,7 +36,7 @@ def main_screen(name_map):
             if x == 10 and y == 49:
                 Tile(map, x, y, background_group)
                 new_player = Hero(screen, player_group)
-            elif map_array[y][x] == 1 or map_array[y][x] == 3 or map_array[y][x] == 6 or map_array[y][x] == 4 or \
+            elif map_array[y][x] == 1 or map_array[y][x] == 3 or map_array[y][x] == 4 or map_array[y][x] == 6 or \
                     map_array[y][x] == 8:
                 Tile(map, x, y, wall_group)
             elif map_array[y][x] == 5:
@@ -64,7 +65,7 @@ def main_screen(name_map):
                 elif event.key == pygame.K_r:
                     end_time = time.time()
                     elapsed_time = end_time - start_time
-                    victory(screen, elapsed_time, name_map[-5])
+                    victory(screen, elapsed_time, int(name_map[-5]), player_name)
                     is_jump = 0
                     running = False
 
@@ -75,11 +76,11 @@ def main_screen(name_map):
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(elapsed_time)
-            victory(screen, elapsed_time, name_map[-5])
+            victory(screen, elapsed_time, int(name_map[-5]), player_name)
             is_jump = 0
             running = False
         elif defeat_collisions:
-            defeat(screen, clock, name_map)
+            defeat(screen, clock, name_map, player_name)
             is_jump = 0
             running = False
         else:
@@ -104,7 +105,7 @@ def main_screen(name_map):
     pygame.quit()
 
 
-def level(screen, clock):
+def level(screen, clock, player_name):
     manager = pygame_gui.UIManager((800, 600))
     is_running = True
     screen.fill((0, 0, 255))
@@ -128,6 +129,9 @@ def level(screen, clock):
     sixth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 255), (50, 50)),
                                                 text='6',
                                                 manager=manager)
+    stats_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 400), (150, 50)),
+                                                text='6',
+                                                manager=manager)
 
     while is_running:
         time_delta = clock.tick(60) / 1000.0
@@ -137,17 +141,19 @@ def level(screen, clock):
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == first_button:
-                    main_screen("уровень1.tmx")
+                    main_screen(player_name, "уровень1.tmx")
                 elif event.ui_element == second_button:
-                    main_screen("уровень2.tmx")
+                    main_screen(player_name, "уровень2.tmx")
                 elif event.ui_element == third_button:
-                    main_screen("уровень3.tmx")
+                    main_screen(player_name, "уровень3.tmx")
                 elif event.ui_element == fourth_button:
-                    main_screen("уровень4.tmx")
+                    main_screen(player_name, "уровень4.tmx")
                 elif event.ui_element == fifth_button:
-                    main_screen("уровень5.tmx")
+                    main_screen(player_name, "уровень5.tmx")
                 elif event.ui_element == sixth_button:
-                    main_screen("уровень6.tmx")
+                    main_screen(player_name, "уровень6.tmx")
+                elif event.ui_element == stats_button:
+                    leader_board(screen, clock, player_name)
 
             manager.process_events(event)
 
@@ -158,20 +164,37 @@ def level(screen, clock):
     pygame.quit()
 
 
-def victory(screen, elapsed_time, number_of_lvl):
-    manager = pygame_gui.UIManager((800, 600))
+def victory(screen, elapsed_time, number_of_lvl, player_name):
+    manager = pygame_gui.UIManager(WINDOW_SIZE)
     font = pygame.font.Font(None, 32)
-    color = pygame.Color('dodgerblue2')
+    color = pygame.Color('darkmagenta')
     clock = pygame.time.Clock()
     is_running = True
 
     screen.fill((0, 255, 0))
-    number_of_lvl = int(elapsed_time)
-    if number_of_lvl == 2 or number_of_lvl == 3 or number_of_lvl == 4:
-        txt_surface = font.render("поздравляем, вы прошли уровень " + f"{number_of_lvl} за {number_of_lvl} секунды",
+    elapsed_time = int(elapsed_time)
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    if number_of_lvl == 1:
+        cursor.execute('UPDATE stats SET lvl1 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+    elif number_of_lvl == 2:
+        cursor.execute('UPDATE stats SET lvl2 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+    elif number_of_lvl == 3:
+        cursor.execute('UPDATE stats SET lvl3 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+    elif number_of_lvl == 4:
+        cursor.execute('UPDATE stats SET lvl4 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+    elif number_of_lvl == 5:
+        cursor.execute('UPDATE stats SET lvl5 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+    elif number_of_lvl == 6:
+        cursor.execute('UPDATE stats SET lvl6 = ? WHERE nick_player = ?', (elapsed_time, player_name))
+
+    connection.commit()
+    connection.close()
+    if elapsed_time == 2 or elapsed_time == 3 or elapsed_time == 4:
+        txt_surface = font.render("Поздравляем, вы прошли уровень " + f"{number_of_lvl} за {elapsed_time} секунды",
                                   True, color)
     else:
-        txt_surface = font.render("поздравляем, вы прошли уровень " + f"{number_of_lvl} за {number_of_lvl} секунд",
+        txt_surface = font.render("Поздравляем, вы прошли уровень " + f"{number_of_lvl} за {elapsed_time} секунд",
                                   True, color)
 
     screen.blit(txt_surface, (50, 200))
@@ -188,7 +211,7 @@ def victory(screen, elapsed_time, number_of_lvl):
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == win:
                     # elapsed_time
-                    level(screen, clock)
+                    level(screen, clock, player_name)
 
             manager.process_events(event)
 
@@ -199,11 +222,10 @@ def victory(screen, elapsed_time, number_of_lvl):
     pygame.quit()
 
 
-def defeat(screen, clock, name_map):
+def defeat(screen, clock, name_map, player_name):
     manager = pygame_gui.UIManager((800, 1000))
     font = pygame.font.Font(None, 32)
     color = pygame.Color('dodgerblue2')
-    clock = pygame.time.Clock()
     is_running = True
     screen.fill((255, 0, 0))
     txt_surface = font.render("Не сдавайтесь, попробуйте ещё раз",
@@ -224,9 +246,9 @@ def defeat(screen, clock, name_map):
 
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == repeat_button:
-                    main_screen(name_map)
+                    main_screen(player_name, name_map)
                 elif event.ui_element == level_button:
-                    level(screen, clock)
+                    level(screen, clock, player_name)
 
             manager.process_events(event)
 
@@ -234,4 +256,68 @@ def defeat(screen, clock, name_map):
         manager.draw_ui(screen)
 
         pygame.display.update()
+    pygame.quit()
+
+
+def leader_board(screen, clock1, player_name):
+    pygame.init()
+    manager = pygame_gui.UIManager((500, 600))
+    screen_here = pygame.display.set_mode((500, 600))
+    clock = pygame.time.Clock()
+    is_running = True
+    screen_here.fill((29, 102, 110))
+    return_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((150, 510), (200, 50)),
+                                                 text='Вернуться назад',
+                                                 manager=manager)
+    while is_running:
+        time_delta = clock.tick(60) / 1000.0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                is_running = False
+            elif event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == return_button:
+                    level(screen, clock1, player_name)
+
+            manager.process_events(event)
+
+        i = 35
+        column_space = 200
+        font_style = pygame.font.Font(None, 32)
+        color = pygame.Color('darkorange3')
+        rating = font_style.render(f'ТОП ЛУЧШИХ ИГРОКОВ', True, color)
+        head1 = font_style.render(f'МЕСТО', True, color)
+        head2 = font_style.render(f'ИГРОК', True, color)
+        head3 = font_style.render(f'СЧЁТ', True, color)
+        dis_width = 50
+
+        connection = sqlite3.connect('database.db')
+        cursor = connection.cursor()
+
+        screen_here.blit(rating, [120, 40])
+        screen_here.blit(head1, [dis_width / 5, (300 / 4) + 5])
+        screen_here.blit(head2, [dis_width / 5 + column_space, (300 / 4) + 5])
+        screen_here.blit(head3, [dis_width / 5 + column_space * 2, (300 / 4) + 5])
+
+        cursor.execute('SELECT * FROM stats ORDER BY score DESC LIMIT 10')
+        rows = cursor.fetchall()
+        for index, row in enumerate(rows):
+            place = index + 1
+            player_name = row[1]
+            player_score = row[2]
+
+            text_player_place = font_style.render(f'{place}', True, color)
+            text_player_name = font_style.render(f'{player_name}', True, color)
+            text_player_score = font_style.render(f'{player_score}', True, color)
+
+            screen_here.blit(text_player_place, [dis_width / 5, (300 / 4) + i + 5])
+            screen_here.blit(text_player_name, [dis_width / 5 + column_space, (300 / 4) + i + 5])
+            screen_here.blit(text_player_score, [dis_width / 5 + column_space * 2, (300 / 4) + i + 5])
+
+            i += 35
+        connection.commit()
+        connection.close()
+
+        pygame.display.flip()
+        manager.update(time_delta)
+        manager.draw_ui(screen_here)
     pygame.quit()
