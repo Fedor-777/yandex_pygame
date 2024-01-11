@@ -8,8 +8,10 @@ import pytmx
 
 from Player import Hero
 from Tile import Tile
-from functoins import load_map
+from functoins import load_map, calculate_rating
 from settings import *
+
+volume = 0.5
 
 
 def main_screen(player_name, name_map):
@@ -25,11 +27,19 @@ def main_screen(player_name, name_map):
     obstacles_group = pygame.sprite.Group()
 
     full_tmx_path = os.path.join("data", name_map)
-    # full_tileset_path = os.path.join("data", "Terrain (16x16).tsx")
     map = pytmx.load_pygame(full_tmx_path)
     map_array = load_map(full_tmx_path)
     height = map.height
     width = map.width
+    # music
+    current_dir = os.path.dirname(__file__)
+    sound_file_path_vic = os.path.join(current_dir, "sounds", "game-won.wav")
+    sound_file_path_lose = os.path.join(current_dir, "sounds", "lose.wav")
+
+    vic = pygame.mixer.Sound(sound_file_path_vic)
+    vic.set_volume(1)
+    los = pygame.mixer.Sound(sound_file_path_lose)
+    los.set_volume(1)
 
     for y in range(height):
         for x in range(width):
@@ -37,7 +47,7 @@ def main_screen(player_name, name_map):
                 Tile(map, x, y, background_group)
                 new_player = Hero(screen, player_group)
             elif map_array[y][x] == 1 or map_array[y][x] == 3 or map_array[y][x] == 4 or map_array[y][x] == 6 or \
-                    map_array[y][x] == 8:
+                    map_array[y][x] == 8 or map_array[y][x] == 10 or map_array[y][x] == 11:
                 Tile(map, x, y, wall_group)
             elif map_array[y][x] == 5:
                 Tile(map, x, y, background_group)
@@ -76,10 +86,12 @@ def main_screen(player_name, name_map):
             end_time = time.time()
             elapsed_time = end_time - start_time
             print(elapsed_time)
+            vic.play()
             victory(screen, elapsed_time, int(name_map[-5]), player_name)
             is_jump = 0
             running = False
         elif defeat_collisions:
+            los.play()
             defeat(screen, clock, name_map, player_name)
             is_jump = 0
             running = False
@@ -106,36 +118,46 @@ def main_screen(player_name, name_map):
 
 
 def level(screen, clock, player_name):
-    manager = pygame_gui.UIManager((800, 600))
+    global volume
+    manager = pygame_gui.UIManager(WINDOW_SIZE)
     is_running = True
+    screen = pygame.display.set_mode((500, 600))
     screen.fill((0, 0, 255))
-
-    first_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((150, 200), (50, 50)),
+    font = pygame.font.SysFont(None, 35)
+    text = "Громкость:"
+    text_surf = font.render(text, True, (255, 0, 0))
+    screen.blit(text_surf, (42, 50))
+    first_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 200), (100, 100)),
                                                 text='1',
                                                 manager=manager)
-
-    second_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((200, 200), (50, 50)),
+    second_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((152, 200), (100, 100)),
                                                  text='2',
                                                  manager=manager)
-    third_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 200), (50, 50)),
+    third_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((254, 200), (100, 100)),
                                                 text='3',
                                                 manager=manager)
-    fourth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((150, 255), (50, 50)),
+    fourth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 302), (100, 100)),
                                                  text='4',
                                                  manager=manager)
-    fifth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((200, 255), (50, 50)),
+    fifth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((152, 302), (100, 100)),
                                                 text='5',
                                                 manager=manager)
-    sixth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 255), (50, 50)),
+    sixth_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((254, 302), (100, 100)),
                                                 text='6',
                                                 manager=manager)
-    stats_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 400), (150, 50)),
-                                                text='6',
+    # volume
+    volume_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((180, 50), (200, 30)),
+                                                           start_value=volume,
+                                                           value_range=(0.0, 1.0),
+                                                           manager=manager)
+    stats_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 404), (304, 50)),
+                                                text='рейтинг',
                                                 manager=manager)
 
     while is_running:
         time_delta = clock.tick(60) / 1000.0
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.QUIT:
                 is_running = False
 
@@ -160,7 +182,10 @@ def level(screen, clock, player_name):
         manager.update(time_delta)
         manager.draw_ui(screen)
 
+        volume = volume_slider.get_current_value()
+        pygame.mixer.music.set_volume(volume)
         pygame.display.update()
+
     pygame.quit()
 
 
@@ -225,7 +250,7 @@ def victory(screen, elapsed_time, number_of_lvl, player_name):
 def defeat(screen, clock, name_map, player_name):
     manager = pygame_gui.UIManager((800, 1000))
     font = pygame.font.Font(None, 32)
-    color = pygame.Color('dodgerblue2')
+    color = pygame.Color('lawngreen')
     is_running = True
     screen.fill((255, 0, 0))
     txt_surface = font.render("Не сдавайтесь, попробуйте ещё раз",
@@ -262,10 +287,9 @@ def defeat(screen, clock, name_map, player_name):
 def leader_board(screen, clock1, player_name):
     pygame.init()
     manager = pygame_gui.UIManager((500, 600))
-    screen_here = pygame.display.set_mode((500, 600))
     clock = pygame.time.Clock()
     is_running = True
-    screen_here.fill((29, 102, 110))
+    screen.fill((29, 102, 110))
     return_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((150, 510), (200, 50)),
                                                  text='Вернуться назад',
                                                  manager=manager)
@@ -292,26 +316,37 @@ def leader_board(screen, clock1, player_name):
 
         connection = sqlite3.connect('database.db')
         cursor = connection.cursor()
+        cursor.execute('SELECT nick_player FROM stats')
+        nicks = cursor.fetchall()
+        for nick in nicks:
+            nick = nick[0]
+            score = calculate_rating(nick)
+            cursor.execute('UPDATE stats SET score = ? WHERE nick_player = ?', (score, nick))
 
-        screen_here.blit(rating, [120, 40])
-        screen_here.blit(head1, [dis_width / 5, (300 / 4) + 5])
-        screen_here.blit(head2, [dis_width / 5 + column_space, (300 / 4) + 5])
-        screen_here.blit(head3, [dis_width / 5 + column_space * 2, (300 / 4) + 5])
+        screen.blit(rating, [120, 40])
+        screen.blit(head1, [dis_width / 5, (300 / 4) + 5])
+        screen.blit(head2, [dis_width / 5 + column_space, (300 / 4) + 5])
+        screen.blit(head3, [dis_width / 5 + column_space * 2, (300 / 4) + 5])
 
         cursor.execute('SELECT * FROM stats ORDER BY score DESC LIMIT 10')
         rows = cursor.fetchall()
         for index, row in enumerate(rows):
             place = index + 1
-            player_name = row[1]
+            player = row[1]
             player_score = row[2]
 
-            text_player_place = font_style.render(f'{place}', True, color)
-            text_player_name = font_style.render(f'{player_name}', True, color)
-            text_player_score = font_style.render(f'{player_score}', True, color)
+            if player == player_name:
+                text_player_place = font_style.render(f'{place}', True, pygame.Color('firebrick4'))
+                text_player_name = font_style.render(f'{player}', True, pygame.Color('firebrick4'))
+                text_player_score = font_style.render(f'{player_score}', True, pygame.Color('firebrick4'))
+            else:
+                text_player_place = font_style.render(f'{place}', True, color)
+                text_player_name = font_style.render(f'{player}', True, color)
+                text_player_score = font_style.render(f'{player_score}', True, color)
 
-            screen_here.blit(text_player_place, [dis_width / 5, (300 / 4) + i + 5])
-            screen_here.blit(text_player_name, [dis_width / 5 + column_space, (300 / 4) + i + 5])
-            screen_here.blit(text_player_score, [dis_width / 5 + column_space * 2, (300 / 4) + i + 5])
+            screen.blit(text_player_place, [dis_width / 5, (300 / 4) + i + 5])
+            screen.blit(text_player_name, [dis_width / 5 + column_space, (300 / 4) + i + 5])
+            screen.blit(text_player_score, [dis_width / 5 + column_space * 2, (300 / 4) + i + 5])
 
             i += 35
         connection.commit()
@@ -319,5 +354,5 @@ def leader_board(screen, clock1, player_name):
 
         pygame.display.flip()
         manager.update(time_delta)
-        manager.draw_ui(screen_here)
+        manager.draw_ui(screen)
     pygame.quit()

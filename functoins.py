@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import sys
 
 import pygame
@@ -42,3 +43,22 @@ def load_image(name, colorkey=None, size=None):
     if size is not None:
         image = pygame.transform.scale(image, size)
     return image
+
+
+def calculate_rating(nick_player):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT lvl1, lvl2, lvl3, lvl4, lvl5, lvl6 FROM stats WHERE nick_player = ?", (nick_player,))
+        times = cursor.fetchone()
+
+        if times:
+            weights = [15, 15, 20, 25, 25, 25]
+            total_rating = sum(max(0, 100 - time) * weight if time > 0 else 0 for time, weight in zip(times, weights))
+            return total_rating
+        else:
+            return None
+    except sqlite3.Error as e:
+        return None
+    finally:
+        conn.close()

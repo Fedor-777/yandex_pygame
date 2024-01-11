@@ -39,7 +39,8 @@ def login():
                         print(f"Ник '{name}' уже существует в таблице.")
                     else:
                         print(f"Ник '{name}' добавлен в таблицу.")
-                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, name, 0, 0, 0, 0, 0, 0, 0))
+                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                       (id, name, 0, 0, 0, 0, 0, 0, 0))
                         conn.commit()
                 else:
                     text += event.unicode
