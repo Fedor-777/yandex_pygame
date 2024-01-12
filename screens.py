@@ -85,7 +85,7 @@ def main_screen(player_name, name_map):
         if finish_collisions:
             end_time = time.time()
             elapsed_time = end_time - start_time
-            print(elapsed_time)
+
             vic.play()
             victory(screen, elapsed_time, int(name_map[-5]), player_name)
             is_jump = 0

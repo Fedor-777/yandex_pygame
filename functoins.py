@@ -20,7 +20,6 @@ def load_map(tmx_file):
         if layer.name == 'Слой тайлов 1':
             for x, y, gid in layer:
                 map_array[y][x] = gid
-    print(map_array)
     return map_array
 
 

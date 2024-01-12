@@ -33,7 +33,6 @@ class Hero(Sprite):
 
         if not wall_collisions:
             self.rect.move_ip(dx * point - A_XY[0] * t, -dy - A_XY[1] * t)
-            print(self.rect.x, self.rect.y)
             return is_jump
         else:
             if self.rect.x < wall_collisions[0].rect.x:
