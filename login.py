@@ -29,7 +29,7 @@ def login():
                 elif event.key == pygame.K_RETURN:
                     name = text
                     run = False
-                    # _________создание/добавление ника в бд
+                    # ________создание/добавление ника в бд
                     create_database_books()
                     query = "SELECT * FROM stats WHERE nick_player = ?"
                     cursor.execute(query, (name,))
