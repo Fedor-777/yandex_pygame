@@ -1,4 +1,5 @@
-WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = 600, 1200
+WINDOW_SIZE = WINDOW_WIDTH, WINDOW_HEIGHT = (600, 1200)
+MINI_SIZE = (500, 600)
 FPS = 40
 max_x = 11
 max_y = 11
@@ -10,4 +11,7 @@ tile_width = tile_height = 20
 WALL_VALUE = 4
 ACCESSIBLE_VALUE = 74
 
-
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)

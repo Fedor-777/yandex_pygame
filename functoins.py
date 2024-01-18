@@ -48,16 +48,20 @@ def calculate_rating(nick_player):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT lvl1, lvl2, lvl3, lvl4, lvl5, lvl6 FROM stats WHERE nick_player = ?", (nick_player,))
-        times = cursor.fetchone()
+        cursor.execute(
+            "SELECT lvl1, lvl2, lvl3, lvl4, lvl5, lvl6, money1, money2, money3, money4, money5, money6 FROM stats WHERE nick_player = ?",
+            (nick_player,))
+        data = cursor.fetchone()
 
-        if times:
+        if data:
             weights = [15, 15, 20, 25, 25, 25]
-            total_rating = sum(max(0, 100 - time) * weight if time > 0 else 0 for time, weight in zip(times, weights))
-            return total_rating
+            total_rating = sum(
+                max(0, 100 - time) * weight if time > 0 else 0 for time, weight in zip(data[:6], weights))
+            total_coins = sum(data[6:])
+            return total_rating, total_coins
         else:
-            return None
+            return None, None
     except sqlite3.Error as e:
-        return None
+        return None, None
     finally:
         conn.close()
