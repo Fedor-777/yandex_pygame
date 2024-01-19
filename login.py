@@ -17,8 +17,6 @@ def login():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # background_image = pygame.image.load(os.path.join(os.path.dirname(__file__), "data/box.png"))
-
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -29,7 +27,7 @@ def login():
                 elif event.key == pygame.K_RETURN:
                     name = text
                     run = False
-                    # ________создание/добавление ника в бд
+                    # Создание/добавление ника в бд
                     create_database_books()
                     query = "SELECT * FROM stats WHERE nick_player = ?"
                     cursor.execute(query, (name,))
@@ -39,15 +37,14 @@ def login():
                         print(f"Ник '{name}' уже существует в таблице.")
                     else:
                         print(f"Ник '{name}' добавлен в таблицу.")
-                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                       (id, name, 0, 0, 0, 0, 0, 0, 0))
+                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                       (id, name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                         conn.commit()
                 else:
                     text += event.unicode
 
-        # ______Отрисовка и создание текстов
+        # Отрисовка и создание текстов
         window.fill((0, 0, 0))
-        # window.blit(background_image, (0, 0))
         text_surf = font.render("Введите свой ник и нажмите enter:", True, (255, 255, 255))
         window.blit(text_surf, (40, 300))
         text_surf_input = font.render(text, True, (255, 0, 0))
@@ -56,7 +53,6 @@ def login():
         clock.tick(60)
 
     conn.close()
-    # pygame.quit()
     return name
 
 
@@ -64,9 +60,19 @@ def create_database_books():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS stats
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, nick_player TEXT, score INTEGER, lvl1 INTEGER, lvl2 INTEGER, lvl3 INTEGER, lvl4 INTEGER, lvl5 INTEGER, lvl6 INTEGER)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  nick_player TEXT, 
+                  score INTEGER, 
+                  coins INTEGER,
+                  lvl1 INTEGER, money1 INTEGER, 
+                  lvl2 INTEGER, money2 INTEGER, 
+                  lvl3 INTEGER, money3 INTEGER, 
+                  lvl4 INTEGER, money4 INTEGER, 
+                  lvl5 INTEGER, money5 INTEGER, 
+                  lvl6 INTEGER, money6 INTEGER)''')
     conn.commit()
     conn.close()
+
 
 
 def get_max_id():
