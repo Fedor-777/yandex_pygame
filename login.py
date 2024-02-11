@@ -1,6 +1,7 @@
 import sqlite3
 
 import pygame
+import pygame_gui
 
 from settings import *
 
@@ -10,47 +11,53 @@ def login():
     window = pygame.display.set_mode(WINDOW_SIZE)
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, SIZE_TEXT)
-    text = ""
-    input_active = True
     run = True
     name = ''
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
+    # Pygame GUI сетап
+    manager = pygame_gui.UIManager(WINDOW_SIZE)
+    input_width = 200
+    input_height = 30
+    input_x = (WINDOW_SIZE[0] - input_width) / 2
+    input_y = (WINDOW_SIZE[1] - input_height) / 2
+    text_entry = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((input_x, input_y),
+                                                                              (input_width, input_height)),
+                                                     manager=manager)
+
     while run:
+        time_delta = clock.tick(60) / 1000.0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if event.type == pygame.KEYDOWN and input_active:
-                if event.key == pygame.K_BACKSPACE:
-                    text = text[:-1]
-                elif event.key == pygame.K_RETURN:
-                    name = text
-                    run = False
-                    # Создание/добавление ника в бд
-                    create_database_books()
-                    query = "SELECT * FROM stats WHERE nick_player = ?"
-                    cursor.execute(query, (name,))
-                    rows = cursor.fetchall()
-                    id = get_max_id() + 1
-                    if len(rows) > 0:
-                        print(f"Ник '{name}' уже существует в таблице.")
-                    else:
-                        print(f"Ник '{name}' добавлен в таблицу.")
-                        cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                       (id, name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                        conn.commit()
-                else:
-                    text += event.unicode
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    if event.ui_element == text_entry:
+                        name = text_entry.get_text()
+                        run = False
+                        # добавление в дб
+                        create_database_books()
+                        query = "SELECT * FROM stats WHERE nick_player = ?"
+                        cursor.execute(query, (name,))
+                        rows = cursor.fetchall()
+                        id = get_max_id() + 1
+                        if len(rows) > 0:
+                            print(f"Ник '{name}' уже существует в таблице.")
+                        else:
+                            print(f"Ник '{name}' добавлен в таблицу.")
+                            cursor.execute("INSERT INTO stats VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                           (id, name, 0, 0, 0, 0, 0, 0, 0))
+                            conn.commit()
 
-        # Отрисовка и создание текстов
+            manager.process_events(event)
+
+        manager.update(time_delta)
         window.fill((0, 0, 0))
         text_surf = font.render("Введите свой ник и нажмите enter:", True, (255, 255, 255))
         window.blit(text_surf, (40, 300))
-        text_surf_input = font.render(text, True, (255, 0, 0))
-        window.blit(text_surf_input, text_surf_input.get_rect(center=window.get_rect().center))
-        pygame.display.flip()
-        clock.tick(60)
+        manager.draw_ui(window)
+        pygame.display.update()
 
     conn.close()
     return name
